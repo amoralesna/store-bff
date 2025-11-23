@@ -22,8 +22,8 @@ public class WebClientConfig {
     }
 
     @Bean
-    public WebClient webClient(HttpClient httpClient, AppConfigEnvironment appConfigEnvironment) {
-        return WebClient.builder()
+    public WebClient webClient(WebClient.Builder builder, HttpClient httpClient) {
+        return builder
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .build();

@@ -23,7 +23,7 @@ public class GetSimilarProductsAdapter implements GetSimilarProductsUseCase {
         List<String> productIds = externalProductServicePort.getSimilarProductsIds(productId);
         List<Product> productsDetail = externalProductServicePort.getProductsDetail(productIds);
 
-        return isNull(productsDetail)
+        return isNull(productsDetail) || productsDetail.isEmpty()
                 ? Set.of()
                 : Set.copyOf(productsDetail);
     }

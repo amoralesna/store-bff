@@ -23,4 +23,7 @@ public class AppConfigEnvironment {
     @Value("${clients.timeout.response:5000}")
     private int responseTimeout;
 
+    @Value("${clients.max-concurrent-requests.product-detail:5}")
+    private int maxConcurrentRequestsProductDetail;
+
 }

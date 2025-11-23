@@ -15,17 +15,16 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static java.util.Objects.isNull;
+
 @Component
 @AllArgsConstructor
 @Slf4j
 public class ExternalProductsServiceAdapter implements ExternalProductServicePort {
 
-    public static final int CONCURRENCY = 10;
-
     private final WebClient webClient;
     private final AppConfigEnvironment appConfigEnvironment;
     private final ExternalProductDetailMapper externalProductDetailMapper;
-
 
     @Override
     public List<String> getSimilarProductsIds(String productId) {
@@ -34,16 +33,15 @@ public class ExternalProductsServiceAdapter implements ExternalProductServicePor
                 .uri(appConfigEnvironment.getExternalProductsServiceUriProductSimilarIds(), productId)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
-                .onErrorResume(e -> {
-                    log.error("Error fetching similar ids for product {}: {}", productId, e.getMessage(), e);
-                    return Mono.just(List.of());
-                })
                 .block();
     }
 
     @Override
     public List<Product> getProductsDetail(List<String> productIds) {
 
+        if (isNull(productIds) || productIds.isEmpty()) {
+            return List.of();
+        }
 
         return Flux.fromIterable(productIds)
                 .flatMap(productId ->
@@ -51,12 +49,12 @@ public class ExternalProductsServiceAdapter implements ExternalProductServicePor
                         .uri(appConfigEnvironment.getExternalProductsServiceUriProductDetail(), productId)
                         .retrieve()
                         .bodyToMono(ExternalProductDetail.class)
-                        .onErrorResume(e -> {
-                            log.error("Error fetching product detail for id {}: {}", productId, e.getMessage(), e);
-                            return Mono.empty();
-                        })
-                        .map(externalProductDetailMapper::toDomain),
-                    CONCURRENCY
+                        .map(externalProductDetailMapper::toDomain)
+                        .onErrorResume(error -> {
+                            log.warn("Error fetching product {}: {}", productId, error.getMessage());
+                            return Mono.empty(); // Ignora el error y continúa con otros productos
+                        }),
+                    appConfigEnvironment.getMaxConcurrentRequestsProductDetail()
                 )
                 .collectList()
                 .block();
