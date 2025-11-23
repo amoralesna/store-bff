@@ -49,6 +49,20 @@ class GetSimilarProductsAdapterTest {
 
     }
 
+    @Test
+    void should_returnEmptySet_when_noSimilarProductsFound() {
+        String productId = "1";
+
+        when(externalProductServicePort
+                .getSimilarProductsIds(anyString()))
+                .thenReturn(List.of());
+
+        Set<Product> similarProductsActual = getSimilarProductsUseCase.getSimilarProducts(productId);
+
+        int expectedSize = 0;
+        assertEquals(expectedSize, similarProductsActual.size());
+    }
+
     private static List<Product> getProductList() {
         return List.of(
                 new Product("2", "Product 2", 20.0, true),
