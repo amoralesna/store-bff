@@ -43,27 +43,27 @@ public class WebClientErrorHandler {
     }
 
     private Throwable mapException(Throwable ex) {
-        if (ex instanceof ConnectTimeoutException) {
-            return new ExternalServiceTimeoutException("Timeout connecting to external service: " + ex.getMessage());
-        }
-
-        if (ex instanceof ReadTimeoutException) {
-            return new ExternalServiceTimeoutException("Timeout reading response: " + ex.getMessage());
-        }
-
-        if (ex instanceof SocketTimeoutException) {
-            return new ExternalServiceTimeoutException("Timeout calling external service: " + ex.getMessage());
-        }
-
-        if (ex instanceof PrematureCloseException) {
-            return new ExternalProductNotFoundException("Connection unexpectedly closed: " + ex.getMessage());
-        }
-
-        if (ex instanceof IOException) {
-            return new RuntimeException("Network failure: " + ex.getMessage());
-        }
-
         if (ex instanceof WebClientException) {
+            if (ex.getCause() instanceof ConnectTimeoutException) {
+                return new ExternalServiceTimeoutException("Timeout connecting to external service: " + ex.getMessage());
+            }
+
+            if (ex.getCause() instanceof ReadTimeoutException) {
+                return new ExternalServiceTimeoutException("Timeout reading response: " + ex.getMessage());
+            }
+
+            if (ex.getCause() instanceof SocketTimeoutException) {
+                return new ExternalServiceTimeoutException("Timeout calling external service: " + ex.getMessage());
+            }
+
+            if (ex.getCause() instanceof PrematureCloseException) {
+                return new ExternalProductNotFoundException("Connection unexpectedly closed: " + ex.getMessage());
+            }
+
+            if (ex.getCause() instanceof IOException) {
+                return new RuntimeException("Network failure: " + ex.getMessage());
+            }
+
             return new RuntimeException("External service error: " + ex.getMessage(), ex);
         }
 
