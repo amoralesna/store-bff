@@ -1,17 +1,17 @@
 # store-bff
 
-## Descripción
+## Descripcion
 
-store-bff es un backend-for-frontend (Spring Boot + WebFlux) que realiza llamadas un servicio externo para obtener información de productos. Este README recoge los pasos básicos para compilar, ejecutar y depurar la aplicación en un entorno local (Windows / PowerShell) y consejos prácticos para problemas frecuentes (conectividad desde contenedores, timeouts y concurrencia).
+store-bff es un backend-for-frontend (Spring Boot + WebFlux) que realiza llamadas un servicio externo para obtener informacion de productos similares.
 
 ## Requisitos
 
 - Java 21
 - Maven (puedes usar el wrapper incluido `mvnw` / `mvnw.cmd`) o una instalación global de Maven (v3.9.9)
 
-## Inicio rápido
+## Inicio rapido
 
-1) Ejecutar desde la raíz del proyecto:
+1) Ejecutar desde la raiz del proyecto:
 
     .\mvnw.cmd spring-boot:run
 
