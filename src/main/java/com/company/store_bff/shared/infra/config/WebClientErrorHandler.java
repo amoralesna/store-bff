@@ -29,7 +29,7 @@ public class WebClientErrorHandler {
                 return clientResponse
                         .bodyToMono(String.class)
                         .flatMap(body -> Mono.error(
-                                new ExternalServiceUnavailableException("External service unavailable: " + body)
+                                new ServiceUnavailableException("External service unavailable: " + body)
                         ));
             }
 
@@ -45,23 +45,23 @@ public class WebClientErrorHandler {
     private Throwable mapException(Throwable ex) {
         if (ex instanceof WebClientException) {
             if (ex.getCause() instanceof ConnectTimeoutException) {
-                return new ExternalServiceTimeoutException("Timeout connecting to external service: " + ex.getMessage());
+                return new TimeoutException("Timeout connecting to external service: " + ex.getMessage());
             }
 
             if (ex.getCause() instanceof ReadTimeoutException) {
-                return new ExternalServiceTimeoutException("Timeout reading response: " + ex.getMessage());
+                return new TimeoutException("Timeout reading response: " + ex.getMessage());
             }
 
             if (ex.getCause() instanceof SocketTimeoutException) {
-                return new ExternalServiceTimeoutException("Timeout calling external service: " + ex.getMessage());
+                return new TimeoutException("Timeout calling external service: " + ex.getMessage());
             }
 
             if (ex.getCause() instanceof PrematureCloseException) {
-                return new ExternalProductNotFoundException("Connection unexpectedly closed: " + ex.getMessage());
+                return new ConnectionException("Connection unexpectedly closed: " + ex.getMessage());
             }
 
             if (ex.getCause() instanceof IOException) {
-                return new RuntimeException("Network failure: " + ex.getMessage());
+                return new ConnectionException("Network failure: " + ex.getMessage());
             }
 
             return new RuntimeException("External service error: " + ex.getMessage(), ex);

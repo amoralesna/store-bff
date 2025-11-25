@@ -4,27 +4,28 @@ import com.company.store_bff.products.application.ports.in.GetSimilarProductsUse
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.products.domain.ports.out.ExternalProductServicePort;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Set;
-
-import static java.util.Objects.isNull;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class GetSimilarProductsAdapter implements GetSimilarProductsUseCase {
 
     private final ExternalProductServicePort externalProductServicePort;
 
     @Override
-    public Set<Product> getSimilarProducts(String productId) {
+    public Mono<Set<Product>> getSimilarProducts(String productId) {
 
-        List<String> productIds = externalProductServicePort.getSimilarProductsIds(productId);
-        List<Product> productsDetail = externalProductServicePort.getProductsDetail(productIds);
-
-        return isNull(productsDetail) || productsDetail.isEmpty()
-                ? Set.of()
-                : Set.copyOf(productsDetail);
+        log.debug("getSimilarProducts - Fetched similar products for product {}", productId);
+        return externalProductServicePort.getSimilarProductsIds(productId)
+                .flatMapMany(externalProductServicePort::getProductsDetail)
+                .collectList()
+                .map(productsDetail -> productsDetail.isEmpty()
+                        ? Set.of()
+                        : Set.copyOf(productsDetail));
     }
 }

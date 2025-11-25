@@ -8,11 +8,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
@@ -36,17 +38,17 @@ class GetSimilarProductsAdapterTest {
 
         when(externalProductServicePort
                 .getSimilarProductsIds(anyString()))
-                .thenReturn(List.of("2", "3", "4"));
+                .thenReturn(Mono.just(List.of("2", "3", "4")));
 
         when(externalProductServicePort
                 .getProductsDetail(anyList()))
-                .thenReturn(getProductList());
+                .thenReturn(Flux.fromIterable(getProductList()));
 
-        Set<Product> similarProductsActual = getSimilarProductsUseCase.getSimilarProducts(productId);
+        Mono<Set<Product>> result = getSimilarProductsUseCase.getSimilarProducts(productId);
 
-        int expectedSize = 3;
-        assertEquals(expectedSize, similarProductsActual.size());
-
+        StepVerifier.create(result)
+                .expectNextMatches(products -> products.size() == 3)
+                .verifyComplete();
     }
 
     @Test
@@ -55,12 +57,17 @@ class GetSimilarProductsAdapterTest {
 
         when(externalProductServicePort
                 .getSimilarProductsIds(anyString()))
-                .thenReturn(List.of());
+                .thenReturn(Mono.just(List.of()));
 
-        Set<Product> similarProductsActual = getSimilarProductsUseCase.getSimilarProducts(productId);
+        when(externalProductServicePort
+                .getProductsDetail(anyList()))
+                .thenReturn(Flux.empty());
 
-        int expectedSize = 0;
-        assertEquals(expectedSize, similarProductsActual.size());
+        Mono<Set<Product>> result = getSimilarProductsUseCase.getSimilarProducts(productId);
+
+        StepVerifier.create(result)
+                .expectNextMatches(products -> products.isEmpty())
+                .verifyComplete();
     }
 
     private static List<Product> getProductList() {

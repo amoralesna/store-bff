@@ -12,11 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -44,48 +45,60 @@ class ExternalProductsServiceAdapterTest {
         when(webClientMock.get().uri(anyString(), anyString()).retrieve().bodyToMono(any(ParameterizedTypeReference.class)))
                 .thenReturn(Mono.just(List.of("1", "2", "3")));
 
-        List<String> result = externalProductsServiceAdapter.getSimilarProductsIds("1");
+        Mono<List<String>> result = externalProductsServiceAdapter.getSimilarProductsIds("1");
 
-        assertNotNull(result);
-        assertEquals(3, result.size());
-        assertEquals(List.of("1", "2", "3"), result);
+        StepVerifier.create(result)
+                .expectNextMatches(ids -> ids.size() == 3 && ids.equals(List.of("1", "2", "3")))
+                .verifyComplete();
     }
 
-//    @Test
-//    void should_getSimilarProductsIds_return_empty_on_error() {
-//        when(appConfigEnvironmentMock.getExternalProductsServiceUriProductSimilarIds())
-//                .thenReturn("/product/{id}/similarids");
-//
-//        when(webClientMock.get().uri(anyString(), anyString()).retrieve().bodyToMono(any(ParameterizedTypeReference.class)))
-//                .thenReturn(Mono.error(new RuntimeException("remote error")));
-//
-//        List<String> result = externalProductsServiceAdapter.getSimilarProductsIds("1");
-//
-//        assertNotNull(result);
-//        assertTrue(result.isEmpty());
-//    }
+    @Test
+    void should_getProductsDetail_return_flux() {
+        when(appConfigEnvironmentMock.getExternalProductsServiceUriProductDetail())
+                .thenReturn("/product/{id}");
 
-//    @Test
-//    void should_getProductsDetail_map_success_and_skip_failures() {
-//        when(appConfigEnvironmentMock.getExternalProductsServiceUriProductDetail())
-//                .thenReturn("/product/{id}");
-//
-//        ExternalProductDetail detail1 = ExternalProductDetail.builder().id("1").name("Product 1").build();
-//
-//        when(appConfigEnvironmentMock.getMaxConcurrentRequestsProductDetail())
-//                .thenReturn(1);
-////        when(webClientMock.get().uri(anyString(), anyString()).retrieve().bodyToMono(eq(ExternalProductDetail.class)))
-////                .thenReturn(Mono.just(detail1))
-////                .thenReturn(Mono.error(new RuntimeException("remote error")));
-//
-//        Product product = new Product("1", "Product 1", null, false);
-//        when(externalProductDetailMapperMock.toDomain(detail1)).thenReturn(product);
-//
-//        List<Product> result = externalProductsServiceAdapter.getProductsDetail(List.of("1"));
-//
-//        assertNotNull(result);
-//        assertEquals(1, result.size());
-//        assertEquals("1", result.get(0).getId());
-//        verify(externalProductDetailMapperMock, times(1)).toDomain(detail1);
-//    }
+        when(appConfigEnvironmentMock.getMaxConcurrentRequestsProductDetail())
+                .thenReturn(2);
+
+        ExternalProductDetail detail1 = ExternalProductDetail.builder().id("1").name("Product 1").build();
+        ExternalProductDetail detail2 = ExternalProductDetail.builder().id("2").name("Product 2").build();
+
+        when(webClientMock.get().uri(anyString(), eq("1")).retrieve().bodyToMono(eq(ExternalProductDetail.class)))
+                .thenReturn(Mono.just(detail1));
+
+        when(webClientMock.get().uri(anyString(), eq("2")).retrieve().bodyToMono(eq(ExternalProductDetail.class)))
+                .thenReturn(Mono.just(detail2));
+
+        Product product1 = new Product("1", "Product 1", null, false);
+        Product product2 = new Product("2", "Product 2", null, false);
+
+        when(externalProductDetailMapperMock.toDomain(detail1)).thenReturn(product1);
+        when(externalProductDetailMapperMock.toDomain(detail2)).thenReturn(product2);
+
+        Flux<Product> result = externalProductsServiceAdapter.getProductsDetail(List.of("1", "2"));
+
+        StepVerifier.create(result)
+                .expectNextCount(2)
+                .verifyComplete();
+
+        verify(externalProductDetailMapperMock, times(2)).toDomain(any());
+    }
+
+    @Test
+    void should_getProductsDetail_return_empty_when_list_is_null() {
+        Flux<Product> result = externalProductsServiceAdapter.getProductsDetail(null);
+
+        StepVerifier.create(result)
+                .expectComplete()
+                .verify();
+    }
+
+    @Test
+    void should_getProductsDetail_return_empty_when_list_is_empty() {
+        Flux<Product> result = externalProductsServiceAdapter.getProductsDetail(List.of());
+
+        StepVerifier.create(result)
+                .expectComplete()
+                .verify();
+    }
 }

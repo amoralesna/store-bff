@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -27,20 +28,19 @@ public class ExternalProductsServiceAdapter implements ExternalProductServicePor
     private final ExternalProductDetailMapper externalProductDetailMapper;
 
     @Override
-    public List<String> getSimilarProductsIds(String productId) {
-
+    public Mono<List<String>> getSimilarProductsIds(String productId) {
+        log.debug("getSimilarProductsIds - Fetching similar IDs for product {}", productId);
         return webClient.get()
                 .uri(appConfigEnvironment.getExternalProductsServiceUriProductSimilarIds(), productId)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<String>>() {})
-                .block();
+                .bodyToMono(new ParameterizedTypeReference<List<String>>() {});
     }
 
     @Override
-    public List<Product> getProductsDetail(List<String> productIds) {
-
+    public Flux<Product> getProductsDetail(List<String> productIds) {
+        log.debug("getProductsDetail - Fetching details for products {}", productIds);
         if (isNull(productIds) || productIds.isEmpty()) {
-            return List.of();
+            return Flux.empty();
         }
 
         return Flux.fromIterable(productIds)
@@ -51,13 +51,11 @@ public class ExternalProductsServiceAdapter implements ExternalProductServicePor
                         .bodyToMono(ExternalProductDetail.class)
                         .map(externalProductDetailMapper::toDomain)
                         .onErrorResume(error -> {
-                            log.warn("Error fetching product {}: {}", productId, error.getMessage());
-                            return Mono.empty(); // Ignora el error y continúa con otros productos
-                        }),
-                    appConfigEnvironment.getMaxConcurrentRequestsProductDetail()
-                )
-                .collectList()
-                .block();
-
+                            log.warn("Error fetching product {}: {}", productId, error.getMessage(), error);
+                            return Mono.empty();
+                        })
+                        , appConfigEnvironment.getMaxConcurrentRequestsProductDetail()
+                );
     }
+
 }

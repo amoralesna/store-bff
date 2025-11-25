@@ -1,29 +1,33 @@
 package com.company.store_bff.products.infra.controllers;
 
 import com.company.store_bff.products.application.ports.in.GetSimilarProductsUseCase;
-import com.company.store_bff.products.domain.models.Product;
-import com.company.store_bff.shared.infra.api.ProductApi;
 import com.company.store_bff.shared.infra.api.model.ProductDetail;
 import com.company.store_bff.shared.infra.mappers.ProductMapper;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
 @RestController
 @AllArgsConstructor
-public class GetSimilarProductsController implements ProductApi {
+@Slf4j
+public class GetSimilarProductsController {
 
     private final GetSimilarProductsUseCase getSimilarProductsUseCase;
     private final ProductMapper productMapper;
 
-    @Override
-    public ResponseEntity<Set<ProductDetail>> getProductSimilar(String productId) {
+    @GetMapping("/product/{productId}/similar")
+    public Mono<ResponseEntity<Set<ProductDetail>>> getProductSimilar(
+            @PathVariable String productId) {
 
-        Set<Product> similarProducts = getSimilarProductsUseCase.getSimilarProducts(productId);
-
-        return ResponseEntity
-                .ok(productMapper.toResponse(similarProducts));
+        log.debug("GetSimilarProductsController - getProductSimilar - Fetched similar products for product {}", productId);
+        return getSimilarProductsUseCase.getSimilarProducts(productId)
+                .map(productMapper::toResponse)
+                .map(ResponseEntity::ok);
     }
 }

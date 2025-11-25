@@ -1,8 +1,8 @@
 package com.company.store_bff.shared.infra.adapters.rest.handlers;
 
 
-import com.company.store_bff.shared.infra.exceptions.ExternalServiceTimeoutException;
-import com.company.store_bff.shared.infra.exceptions.ExternalServiceUnavailableException;
+import com.company.store_bff.shared.infra.exceptions.TimeoutException;
+import com.company.store_bff.shared.infra.exceptions.ServiceUnavailableException;
 import com.company.store_bff.shared.infra.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,15 +22,15 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    @ExceptionHandler(ExternalServiceTimeoutException.class)
-    public ResponseEntity<String> handleTimeoutException(ExternalServiceTimeoutException ex) {
+    @ExceptionHandler(TimeoutException.class)
+    public ResponseEntity<String> handleTimeoutException(TimeoutException ex) {
         log.error("ApiExceptionHandler - timeout: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.REQUEST_TIMEOUT).body(ex.getMessage());
     }
 
-    @ExceptionHandler(ExternalServiceUnavailableException.class)
-    public ResponseEntity<String> handleServiceUnavailable(ExternalServiceUnavailableException ex) {
-        log.error("ApiExceptionHandler - timeout: {}", ex.getMessage());
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<String> handleServiceUnavailable(ServiceUnavailableException ex) {
+        log.error("ApiExceptionHandler - service unavailable: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(ex.getMessage());
     }
 
