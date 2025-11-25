@@ -15,9 +15,9 @@ clients:
   base-url: http://localhost:3001
   timeout:
     connection: 5000
-    response: 5000
+    response: 21000
   max-concurrent-requests:
-    product-detail: 15
+    product-detail: 3
   external-products-service:
     uri:
       product-similar-ids: ${clients.base-url}/product/{productId}/similarids

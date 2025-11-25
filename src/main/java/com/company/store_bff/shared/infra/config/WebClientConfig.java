@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
 
 import java.time.Duration;
 
@@ -16,7 +17,13 @@ public class WebClientConfig {
 
     @Bean
     public HttpClient httpClient(AppConfigEnvironment appConfigEnvironment) {
-        return HttpClient.create()
+        ConnectionProvider provider = ConnectionProvider.builder("custom-pool")
+                .maxConnections(150)
+                .pendingAcquireTimeout(Duration.ofMillis(1000))
+                .pendingAcquireMaxCount(1000)
+                .maxIdleTime(Duration.ofSeconds(5))
+                .build();
+        return HttpClient.create(provider)
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, appConfigEnvironment.getConnectionTimeout())
                 .responseTimeout(Duration.ofMillis(appConfigEnvironment.getResponseTimeout()));
     }
