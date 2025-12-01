@@ -1,7 +1,6 @@
 package com.company.store_bff.products.application.adapters;
 
 
-import com.company.store_bff.products.application.adapters.GetSimilarProducts;
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.products.domain.ports.out.ExternalProductServicePort;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,10 +16,12 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.Set;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
+@ExtendWith(MockitoExtension.class)
 class GetSimilarProductsTest {
 
     @Mock
@@ -28,11 +29,6 @@ class GetSimilarProductsTest {
 
     @InjectMocks
     private GetSimilarProducts getSimilarProductsUseCase;
-
-    @BeforeEach
-    void setUp() {
-        openMocks(this);
-    }
 
     @Test
     void should_getSimilarProductList() {
