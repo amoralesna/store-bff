@@ -1,6 +1,6 @@
 package com.company.store_bff.products.infra.controllers;
 
-import com.company.store_bff.products.application.ports.in.GetSimilarProductsUseCase;
+import com.company.store_bff.products.domain.ports.in.GetSimilarProductsUseCase;
 import com.company.store_bff.shared.infra.api.model.ProductDetail;
 import com.company.store_bff.shared.infra.mappers.ProductMapper;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ public class GetSimilarProductsController {
             @PathVariable String productId) {
 
         log.debug("GetSimilarProductsController - getProductSimilar - Fetched similar products for product {}", productId);
-        return getSimilarProductsUseCase.getSimilarProducts(productId)
+        return getSimilarProductsUseCase.execute(productId)
                 .map(productMapper::toResponse)
                 .map(ResponseEntity::ok);
     }

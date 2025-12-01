@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.adapters;
+package com.company.store_bff.shared.infra.clients;
 
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.products.domain.ports.out.ExternalProductServicePort;
@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -21,7 +20,7 @@ import static java.util.Objects.isNull;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class ExternalProductsServiceAdapter implements ExternalProductServicePort {
+public class ExternalProductsClient implements ExternalProductServicePort {
 
     private final WebClient webClient;
     private final AppConfigEnvironment appConfigEnvironment;
@@ -37,7 +36,7 @@ public class ExternalProductsServiceAdapter implements ExternalProductServicePor
     }
 
     @Override
-    public Flux<Product> getProductsDetail(List<String> productIds) {
+    public Flux<Product> getProductsDetails(List<String> productIds) {
         log.debug("getProductsDetail - Fetching details for products {}", productIds);
         if (isNull(productIds) || productIds.isEmpty()) {
             return Flux.empty();

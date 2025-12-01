@@ -1,13 +1,15 @@
-package com.company.store_bff.products.application.usecases;
+package com.company.store_bff.products.application.adapters;
 
 
-import com.company.store_bff.products.application.adapters.GetSimilarProductsAdapter;
+import com.company.store_bff.products.application.adapters.GetSimilarProducts;
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.products.domain.ports.out.ExternalProductServicePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -19,13 +21,13 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
-class GetSimilarProductsAdapterTest {
+class GetSimilarProductsTest {
 
     @Mock
     private ExternalProductServicePort externalProductServicePort;
 
     @InjectMocks
-    private GetSimilarProductsAdapter getSimilarProductsUseCase;
+    private GetSimilarProducts getSimilarProductsUseCase;
 
     @BeforeEach
     void setUp() {
@@ -41,10 +43,10 @@ class GetSimilarProductsAdapterTest {
                 .thenReturn(Mono.just(List.of("2", "3", "4")));
 
         when(externalProductServicePort
-                .getProductsDetail(anyList()))
+                .getProductsDetails(anyList()))
                 .thenReturn(Flux.fromIterable(getProductList()));
 
-        Mono<Set<Product>> result = getSimilarProductsUseCase.getSimilarProducts(productId);
+        Mono<Set<Product>> result = getSimilarProductsUseCase.execute(productId);
 
         StepVerifier.create(result)
                 .expectNextMatches(products -> products.size() == 3)
@@ -60,13 +62,13 @@ class GetSimilarProductsAdapterTest {
                 .thenReturn(Mono.just(List.of()));
 
         when(externalProductServicePort
-                .getProductsDetail(anyList()))
+                .getProductsDetails(anyList()))
                 .thenReturn(Flux.empty());
 
-        Mono<Set<Product>> result = getSimilarProductsUseCase.getSimilarProducts(productId);
+        Mono<Set<Product>> result = getSimilarProductsUseCase.execute(productId);
 
         StepVerifier.create(result)
-                .expectNextMatches(products -> products.isEmpty())
+                .expectNextMatches(Set::isEmpty)
                 .verifyComplete();
     }
 

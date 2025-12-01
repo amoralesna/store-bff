@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.adapters;
+package com.company.store_bff.shared.infra.clients;
 
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.shared.infra.config.AppConfigEnvironment;
@@ -22,7 +22,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ExternalProductsServiceAdapterTest {
+class ExternalProductsClientTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private WebClient webClientMock;
@@ -34,7 +34,7 @@ class ExternalProductsServiceAdapterTest {
     private ExternalProductDetailMapper externalProductDetailMapperMock;
 
     @InjectMocks
-    private ExternalProductsServiceAdapter externalProductsServiceAdapter;
+    private ExternalProductsClient externalProductsClient;
 
     @Test
     void should_getSimilarProductsIds_return_list() {
@@ -45,7 +45,7 @@ class ExternalProductsServiceAdapterTest {
         when(webClientMock.get().uri(anyString(), anyString()).retrieve().bodyToMono(any(ParameterizedTypeReference.class)))
                 .thenReturn(Mono.just(List.of("1", "2", "3")));
 
-        Mono<List<String>> result = externalProductsServiceAdapter.getSimilarProductsIds("1");
+        Mono<List<String>> result = externalProductsClient.getSimilarProductsIds("1");
 
         StepVerifier.create(result)
                 .expectNextMatches(ids -> ids.size() == 3 && ids.equals(List.of("1", "2", "3")))
@@ -75,7 +75,7 @@ class ExternalProductsServiceAdapterTest {
         when(externalProductDetailMapperMock.toDomain(detail1)).thenReturn(product1);
         when(externalProductDetailMapperMock.toDomain(detail2)).thenReturn(product2);
 
-        Flux<Product> result = externalProductsServiceAdapter.getProductsDetail(List.of("1", "2"));
+        Flux<Product> result = externalProductsClient.getProductsDetails(List.of("1", "2"));
 
         StepVerifier.create(result)
                 .expectNextCount(2)
@@ -86,7 +86,7 @@ class ExternalProductsServiceAdapterTest {
 
     @Test
     void should_getProductsDetail_return_empty_when_list_is_null() {
-        Flux<Product> result = externalProductsServiceAdapter.getProductsDetail(null);
+        Flux<Product> result = externalProductsClient.getProductsDetails(null);
 
         StepVerifier.create(result)
                 .expectComplete()
@@ -95,7 +95,7 @@ class ExternalProductsServiceAdapterTest {
 
     @Test
     void should_getProductsDetail_return_empty_when_list_is_empty() {
-        Flux<Product> result = externalProductsServiceAdapter.getProductsDetail(List.of());
+        Flux<Product> result = externalProductsClient.getProductsDetails(List.of());
 
         StepVerifier.create(result)
                 .expectComplete()

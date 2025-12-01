@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.adapters.rest.handlers;
+package com.company.store_bff.shared.infra.exceptions.handler;
 
 
 import com.company.store_bff.shared.infra.exceptions.TimeoutException;

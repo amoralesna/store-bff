@@ -9,5 +9,5 @@ import java.util.List;
 public interface ExternalProductServicePort {
 
     Mono<List<String>> getSimilarProductsIds(String productId);
-    Flux<Product> getProductsDetail(List<String> productIds);
+    Flux<Product> getProductsDetails(List<String> productIds);
 }

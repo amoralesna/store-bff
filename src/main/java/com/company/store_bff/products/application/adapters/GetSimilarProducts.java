@@ -1,6 +1,6 @@
 package com.company.store_bff.products.application.adapters;
 
-import com.company.store_bff.products.application.ports.in.GetSimilarProductsUseCase;
+import com.company.store_bff.products.domain.ports.in.GetSimilarProductsUseCase;
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.products.domain.ports.out.ExternalProductServicePort;
 import lombok.AllArgsConstructor;
@@ -13,16 +13,16 @@ import java.util.Set;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class GetSimilarProductsAdapter implements GetSimilarProductsUseCase {
+public class GetSimilarProducts implements GetSimilarProductsUseCase {
 
     private final ExternalProductServicePort externalProductServicePort;
 
     @Override
-    public Mono<Set<Product>> getSimilarProducts(String productId) {
+    public Mono<Set<Product>> execute(String productId) {
 
         log.debug("getSimilarProducts - Fetched similar products for product {}", productId);
         return externalProductServicePort.getSimilarProductsIds(productId)
-                .flatMapMany(externalProductServicePort::getProductsDetail)
+                .flatMapMany(externalProductServicePort::getProductsDetails)
                 .collectList()
                 .map(productsDetail -> productsDetail.isEmpty()
                         ? Set.of()
