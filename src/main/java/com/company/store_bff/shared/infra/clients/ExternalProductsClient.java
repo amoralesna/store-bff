@@ -5,6 +5,7 @@ import com.company.store_bff.products.domain.ports.out.ExternalProductServicePor
 import com.company.store_bff.shared.infra.config.AppConfigEnvironment;
 import com.company.store_bff.shared.infra.dtos.ExternalProductDetail;
 import com.company.store_bff.shared.infra.mappers.ExternalProductDetailMapper;
+import com.github.benmanes.caffeine.cache.Cache;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,6 +26,7 @@ public class ExternalProductsClient implements ExternalProductServicePort {
     private final WebClient webClient;
     private final AppConfigEnvironment appConfigEnvironment;
     private final ExternalProductDetailMapper externalProductDetailMapper;
+    private final Cache<String, Product> productDetailsCache;
 
     @Override
     public Mono<List<String>> getSimilarProductsIds(String productId) {
@@ -43,18 +45,34 @@ public class ExternalProductsClient implements ExternalProductServicePort {
         }
 
         return Flux.fromIterable(productIds)
-                .flatMap(productId ->
-                    webClient.get()
-                        .uri(appConfigEnvironment.getExternalProductsServiceUriProductDetail(), productId)
-                        .retrieve()
-                        .bodyToMono(ExternalProductDetail.class)
-                        .map(externalProductDetailMapper::toDomain)
-                        .onErrorResume(error -> {
-                            log.warn("Error fetching product {}: {}", productId, error.getMessage(), error);
-                            return Mono.empty();
+                .flatMap(this::getProductDetailWithCache, appConfigEnvironment.getMaxConcurrentRequestsProductDetail());
+    }
+
+    private Mono<Product> getProductDetailWithCache(String productId) {
+        return Mono.justOrEmpty(productDetailsCache.getIfPresent(productId))
+                .doOnNext(cachedProduct -> log.debug("Cache HIT for product {}", productId))
+                .switchIfEmpty(
+                        Mono.defer(() -> {
+                            log.debug("Cache MISS for product {} - Fetching from external service", productId);
+                            return fetchProductDetailFromExternalService(productId)
+                                    .doOnNext(product -> {
+                                        log.debug("Storing product {} in cache", productId);
+                                        productDetailsCache.put(productId, product);
+                                    });
                         })
-                        , appConfigEnvironment.getMaxConcurrentRequestsProductDetail()
                 );
+    }
+
+    private Mono<Product> fetchProductDetailFromExternalService(String productId) {
+        return webClient.get()
+                .uri(appConfigEnvironment.getExternalProductsServiceUriProductDetail(), productId)
+                .retrieve()
+                .bodyToMono(ExternalProductDetail.class)
+                .map(externalProductDetailMapper::toDomain)
+                .onErrorResume(error -> {
+                    log.warn("Error fetching product {}: {}", productId, error.getMessage(), error);
+                    return Mono.empty();
+                });
     }
 
 }
