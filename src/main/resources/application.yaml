@@ -16,13 +16,31 @@ cache:
     maximum-size: 10000
     expire-after-write: 10m
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 20
+        minimum-number-of-calls: 15
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 15s
+        permitted-number-of-calls-in-half-open-state: 10
+        slow-call-duration-threshold: 15s
+        slow-call-rate-threshold: 80
+        automatic-transition-from-open-to-half-open-enabled: true
+        register-health-indicator: true
+    instances:
+      externalServices:
+        base-config: default
+
 clients:
   base-url: http://localhost:3001
   timeout:
     connection: 5000
-    response: 21000
+    response: 20000
   max-concurrent-requests:
-    product-detail: 3
+    product-detail: 10
   external-products-service:
     uri:
       product-similar-ids: ${clients.base-url}/product/{productId}/similarids

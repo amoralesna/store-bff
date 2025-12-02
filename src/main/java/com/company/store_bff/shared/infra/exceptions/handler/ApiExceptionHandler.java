@@ -36,7 +36,7 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(HttpServerErrorException.InternalServerError.class)
     public ResponseEntity<String> handleInternalServerError(HttpServerErrorException.InternalServerError ex) {
-        log.error("ApiExceptionHandler - internal server error: {}", ex.getMessage());
+        log.error("ApiExceptionHandler - internal server error: {}"/*, ex.getMessage()*/);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred in the external service.");
     }
 }

@@ -4,6 +4,7 @@ import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.shared.infra.config.AppConfigEnvironment;
 import com.company.store_bff.shared.infra.dtos.ExternalProductDetail;
 import com.company.store_bff.shared.infra.mappers.ExternalProductDetailMapper;
+import com.github.benmanes.caffeine.cache.Cache;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -33,6 +34,9 @@ class ExternalProductsClientTest {
     @Mock
     private ExternalProductDetailMapper externalProductDetailMapperMock;
 
+    @Mock
+    private Cache<String, Product> productDetailsCacheMock;
+
     @InjectMocks
     private ExternalProductsClient externalProductsClient;
 
@@ -60,6 +64,9 @@ class ExternalProductsClientTest {
         when(appConfigEnvironmentMock.getMaxConcurrentRequestsProductDetail())
                 .thenReturn(2);
 
+        when(productDetailsCacheMock.getIfPresent(anyString()))
+                .thenReturn(null);
+
         ExternalProductDetail detail1 = ExternalProductDetail.builder().id("1").name("Product 1").build();
         ExternalProductDetail detail2 = ExternalProductDetail.builder().id("2").name("Product 2").build();
 
@@ -82,6 +89,7 @@ class ExternalProductsClientTest {
                 .verifyComplete();
 
         verify(externalProductDetailMapperMock, times(2)).toDomain(any());
+        verify(productDetailsCacheMock, times(2)).put(anyString(), any(Product.class));
     }
 
     @Test
