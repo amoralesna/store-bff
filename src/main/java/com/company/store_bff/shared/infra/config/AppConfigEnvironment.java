@@ -34,4 +34,16 @@ public class AppConfigEnvironment {
     @Value("${cache.similar-products.expire-after-write:10m}")
     private Duration cacheExpireAfterWrite;
 
+    @Value("${app.config.webclient.connection-pool.max-connections:250}")
+    private int connectionPoolMaxConnections;
+
+    @Value("${app.config.webclient.connection-pool.pending-acquire-timeout:20000}")
+    private int connectionPoolPendingAcquireTimeout;
+
+    @Value("${app.config.webclient.connection-pool.pending-acquire-max-count:300}")
+    private int connectionPoolPendingAcquireMaxCount;
+
+    @Value("${app.config.webclient.connection-pool.max-idle-time:10000}")
+    private int connectionPoolMaxIdleTime;
+
 }

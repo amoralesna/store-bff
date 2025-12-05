@@ -27,17 +27,27 @@ resilience4j:
         wait-duration-in-open-state: 15s
         permitted-number-of-calls-in-half-open-state: 10
         slow-call-duration-threshold: 15s
-        slow-call-rate-threshold: 80
+        slow-call-rate-threshold: 50
         automatic-transition-from-open-to-half-open-enabled: true
         register-health-indicator: true
     instances:
       externalServices:
         base-config: default
 
+  bulkhead:
+    configs:
+      default:
+        max-concurrent-calls: 100
+        max-wait-duration: 10000ms
+    instances:
+      externalServices:
+        base-config: default
+        max-concurrent-calls: 200
+
 clients:
   base-url: http://localhost:3001
   timeout:
-    connection: 5000
+    connection: 15000
     response: 20000
   max-concurrent-requests:
     product-detail: 10
@@ -45,5 +55,14 @@ clients:
     uri:
       product-similar-ids: ${clients.base-url}/product/{productId}/similarids
       product-detail: ${clients.base-url}/product/{productId}
+
+app:
+  config:
+    webclient:
+      connection-pool:
+        max-connections: 250
+        pending-acquire-timeout: 20000
+        pending-acquire-max-count: 300
+        max-idle-time: 10000
 
 
