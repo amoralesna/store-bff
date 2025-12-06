@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Component
 @AllArgsConstructor
@@ -30,37 +31,30 @@ public class ExternalProductsClient implements ExternalProductServicePort {
 
     @Override
     public Mono<List<String>> getSimilarProductsIds(String productId) {
-        log.debug("getSimilarProductsIds - Fetching similar IDs for product {}", productId);
+        log.debug("Fetching similar IDs for product {}", productId);
         return webClient.get()
                 .uri(appConfigEnvironment.getExternalProductsServiceUriProductSimilarIds(), productId)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<String>>() {});
+                .bodyToMono(new ParameterizedTypeReference<>() {});
     }
 
     @Override
     public Flux<Product> getProductsDetails(List<String> productIds) {
-        log.debug("getProductsDetail - Fetching details for products {}", productIds);
-        if (isNull(productIds) || productIds.isEmpty()) {
-            return Flux.empty();
-        }
-
+        log.debug("Fetching details for products {}", productIds);
         return Flux.fromIterable(productIds)
                 .flatMap(this::getProductDetailWithCache, appConfigEnvironment.getMaxConcurrentRequestsProductDetail());
     }
 
     private Mono<Product> getProductDetailWithCache(String productId) {
-        return Mono.justOrEmpty(productDetailsCache.getIfPresent(productId))
-                .doOnNext(cachedProduct -> log.debug("Cache HIT for product {}", productId))
-                .switchIfEmpty(
-                        Mono.defer(() -> {
-                            log.debug("Cache MISS for product {} - Fetching from external service", productId);
-                            return fetchProductDetailFromExternalService(productId)
-                                    .doOnNext(product -> {
-                                        log.debug("Storing product {} in cache", productId);
-                                        productDetailsCache.put(productId, product);
-                                    });
-                        })
-                );
+        Product cached = productDetailsCache.getIfPresent(productId);
+        if (nonNull(cached)) {
+            log.debug("Cache HIT for product {}", productId);
+            return Mono.just(cached);
+        }
+
+        log.debug("Cache MISS for product {}", productId);
+        return fetchProductDetailFromExternalService(productId)
+                .doOnNext(product -> productDetailsCache.put(productId, product));
     }
 
     private Mono<Product> fetchProductDetailFromExternalService(String productId) {
@@ -70,7 +64,7 @@ public class ExternalProductsClient implements ExternalProductServicePort {
                 .bodyToMono(ExternalProductDetail.class)
                 .map(externalProductDetailMapper::toDomain)
                 .onErrorResume(error -> {
-                    log.warn("Error fetching product {}: {}", productId, error.getMessage(), error);
+                    log.warn("Error fetching product {}: {}", productId, error.getMessage());
                     return Mono.empty();
                 });
     }
