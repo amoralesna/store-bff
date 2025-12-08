@@ -13,8 +13,8 @@ spring:
 
 cache:
   similar-products:
-    maximum-size: 10000
-    expire-after-write: 10m
+    maximum-size: 1000
+    expire-after-write: 2m
 
 resilience4j:
   circuitbreaker:
@@ -37,20 +37,28 @@ resilience4j:
   bulkhead:
     configs:
       default:
-        max-concurrent-calls: 100
-        max-wait-duration: 10000ms
+        max-concurrent-calls: 300
+        max-wait-duration: 500ms
     instances:
       productDetails:
         base-config: default
-        max-concurrent-calls: 200
+
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 1s
+        cancel-running-future: true
+    instances:
+      productDetails:
+        base-config: default
 
 clients:
   base-url: http://localhost:3001
   timeout:
-    connection: 15000
-    response: 20000
+    connection: 5000
+    response: 10000
   max-concurrent-requests:
-    product-detail: 10
+    product-detail: 5
   external-products-service:
     uri:
       product-similar-ids: ${clients.base-url}/product/{productId}/similarids
@@ -60,9 +68,9 @@ app:
   config:
     webclient:
       connection-pool:
-        max-connections: 250
+        max-connections: 500
         pending-acquire-timeout: 20000
-        pending-acquire-max-count: 300
+        pending-acquire-max-count: 800
         max-idle-time: 10000
 
 
