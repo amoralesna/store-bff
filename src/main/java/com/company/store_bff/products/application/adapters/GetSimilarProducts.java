@@ -6,9 +6,7 @@ import com.company.store_bff.products.domain.ports.out.ExternalProductServicePor
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-
-import java.util.Set;
+import reactor.core.publisher.Flux;
 
 @Service
 @AllArgsConstructor
@@ -18,14 +16,9 @@ public class GetSimilarProducts implements GetSimilarProductsUseCase {
     private final ExternalProductServicePort externalProductServicePort;
 
     @Override
-    public Mono<Set<Product>> execute(String productId) {
-
-        log.debug("getSimilarProducts - Fetched similar products for product {}", productId);
+    public Flux<Product> execute(String productId) {
+        log.debug("getSimilarProducts - Fetching similar products for product {}", productId);
         return externalProductServicePort.getSimilarProductsIds(productId)
-                .flatMapMany(externalProductServicePort::getProductsDetails)
-                .collectList()
-                .map(productsDetail -> productsDetail.isEmpty()
-                        ? Set.of()
-                        : Set.copyOf(productsDetail));
+                .flatMapMany(externalProductServicePort::getProductsDetails);
     }
 }

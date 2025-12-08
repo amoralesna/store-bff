@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import java.util.Set;
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -22,12 +22,13 @@ public class GetSimilarProductsController {
     private final ProductMapper productMapper;
 
     @GetMapping("/product/{productId}/similar")
-    public Mono<ResponseEntity<Set<ProductDetail>>> getProductSimilar(
+    public Mono<ResponseEntity<List<ProductDetail>>> getProductSimilar(
             @PathVariable String productId) {
 
-        log.debug("GetSimilarProductsController - getProductSimilar - Fetched similar products for product {}", productId);
+        log.debug("GetSimilarProductsController - getProductSimilar - Fetching similar products for product {}", productId);
         return getSimilarProductsUseCase.execute(productId)
-                .map(productMapper::toResponse)
+                .map(productMapper::toDto)
+                .collectList()
                 .map(ResponseEntity::ok);
     }
 }

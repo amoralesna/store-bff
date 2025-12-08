@@ -40,6 +40,10 @@ public class ExternalProductsClient implements ExternalProductServicePort {
 
     @Override
     public Flux<Product> getProductsDetails(List<String> productIds) {
+        if (isNull(productIds)) {
+            log.debug("ProductIds is null, returning empty flux");
+            return Flux.empty();
+        }
         log.debug("Fetching details for products {}", productIds);
         return Flux.fromIterable(productIds)
                 .flatMap(this::getProductDetailWithCache, appConfigEnvironment.getMaxConcurrentRequestsProductDetail());

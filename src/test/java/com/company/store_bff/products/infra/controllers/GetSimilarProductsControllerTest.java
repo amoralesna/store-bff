@@ -9,11 +9,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
-import java.util.Set;
 
 import static org.mockito.Mockito.*;
 
@@ -31,43 +30,38 @@ class GetSimilarProductsControllerTest {
 
     @Test
     void should_getProductSimilar_return_response_with_mapped_details() {
-        Product p = new Product("p1", "Product 1", 10.0, true);
-        Set<Product> domainSet = Set.of(p);
-        Set<ProductDetail> mapped = Set.of(new ProductDetail("p1", "Product 1", BigDecimal.valueOf(10), true));
+        Product p1 = new Product("2", "Product 2", 20.0, true);
+        Product p2 = new Product("3", "Product 3", 30.0, false);
 
-        when(getSimilarProductsUseCase.execute("p1")).thenReturn(Mono.just(domainSet));
-        when(productMapper.toResponse(domainSet)).thenReturn(mapped);
+        ProductDetail pd1 = new ProductDetail("2", "Product 2", BigDecimal.valueOf(20), true);
+        ProductDetail pd2 = new ProductDetail("3", "Product 3", BigDecimal.valueOf(30), false);
 
-        StepVerifier.create(controller.getProductSimilar("p1"))
+        when(getSimilarProductsUseCase.execute("1")).thenReturn(Flux.just(p1, p2));
+        when(productMapper.toDto(p1)).thenReturn(pd1);
+        when(productMapper.toDto(p2)).thenReturn(pd2);
+
+        StepVerifier.create(controller.getProductSimilar("1"))
                 .expectNextMatches(responseEntity ->
                         responseEntity.getStatusCode().is2xxSuccessful() &&
-                                responseEntity.getBody() == mapped)
+                                responseEntity.getBody() != null &&
+                                responseEntity.getBody().size() == 2)
                 .verifyComplete();
 
-        verify(productMapper, times(1)).toResponse(domainSet);
+        verify(productMapper, times(1)).toDto(p1);
+        verify(productMapper, times(1)).toDto(p2);
     }
 
     @Test
-    void should_complete_without_value_when_usecase_returns_empty() {
-        when(getSimilarProductsUseCase.execute("p2")).thenReturn(Mono.empty());
+    void should_return_empty_list_when_usecase_returns_empty_flux() {
+        when(getSimilarProductsUseCase.execute("2")).thenReturn(Flux.empty());
 
-        StepVerifier.create(controller.getProductSimilar("p2"))
-                .expectComplete()
-                .verify();
+        StepVerifier.create(controller.getProductSimilar("2"))
+                .expectNextMatches(responseEntity ->
+                        responseEntity.getStatusCode().is2xxSuccessful() &&
+                                responseEntity.getBody() != null &&
+                                responseEntity.getBody().isEmpty())
+                .verifyComplete();
 
         verifyNoInteractions(productMapper);
     }
-
-//    @Test
-//    void should_propagate_illegal_argument_exception_when_usecase_errors_with_illegal_argument_exception() {
-//        IllegalArgumentException ex = new IllegalArgumentException("Product ID must not be null or empty");
-//        when(getSimilarProductsUseCase.execute("p3")).thenReturn(Mono.error(ex));
-//
-//        StepVerifier.create(controller.getProductSimilar("p3"))
-//                .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException &&
-//                        throwable.getMessage().contains("must not be null"))
-//                .verify();
-//
-//        verifyNoInteractions(productMapper);
-//    }
 }

@@ -94,6 +94,7 @@ class ExternalProductsClientTest {
 
     @Test
     void should_getProductsDetail_return_empty_when_list_is_null() {
+
         Flux<Product> result = externalProductsClient.getProductsDetails(null);
 
         StepVerifier.create(result)
@@ -103,6 +104,9 @@ class ExternalProductsClientTest {
 
     @Test
     void should_getProductsDetail_return_empty_when_list_is_empty() {
+        when(appConfigEnvironmentMock.getMaxConcurrentRequestsProductDetail())
+                .thenReturn(2);
+
         Flux<Product> result = externalProductsClient.getProductsDetails(List.of());
 
         StepVerifier.create(result)

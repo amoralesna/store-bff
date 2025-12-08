@@ -3,7 +3,6 @@ package com.company.store_bff.products.application.adapters;
 
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.products.domain.ports.out.ExternalProductServicePort;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,12 +13,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
-import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.openMocks;
 
 @ExtendWith(MockitoExtension.class)
 class GetSimilarProductsTest {
@@ -42,15 +39,15 @@ class GetSimilarProductsTest {
                 .getProductsDetails(anyList()))
                 .thenReturn(Flux.fromIterable(getProductList()));
 
-        Mono<Set<Product>> result = getSimilarProductsUseCase.execute(productId);
+        Flux<Product> result = getSimilarProductsUseCase.execute(productId);
 
         StepVerifier.create(result)
-                .expectNextMatches(products -> products.size() == 3)
+                .expectNextCount(3)
                 .verifyComplete();
     }
 
     @Test
-    void should_returnEmptySet_when_noSimilarProductsFound() {
+    void should_returnEmptyFlux_when_noSimilarProductsFound() {
         String productId = "1";
 
         when(externalProductServicePort
@@ -61,10 +58,10 @@ class GetSimilarProductsTest {
                 .getProductsDetails(anyList()))
                 .thenReturn(Flux.empty());
 
-        Mono<Set<Product>> result = getSimilarProductsUseCase.execute(productId);
+        Flux<Product> result = getSimilarProductsUseCase.execute(productId);
 
         StepVerifier.create(result)
-                .expectNextMatches(Set::isEmpty)
+                .expectNextCount(0)
                 .verifyComplete();
     }
 
