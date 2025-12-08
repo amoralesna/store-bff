@@ -31,7 +31,7 @@ resilience4j:
         automatic-transition-from-open-to-half-open-enabled: true
         register-health-indicator: true
     instances:
-      externalServices:
+      productDetails:
         base-config: default
 
   bulkhead:
@@ -40,7 +40,7 @@ resilience4j:
         max-concurrent-calls: 100
         max-wait-duration: 10000ms
     instances:
-      externalServices:
+      productDetails:
         base-config: default
         max-concurrent-calls: 200
 
