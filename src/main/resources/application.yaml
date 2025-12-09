@@ -26,7 +26,7 @@ resilience4j:
         failure-rate-threshold: 50
         wait-duration-in-open-state: 15s
         permitted-number-of-calls-in-half-open-state: 10
-        slow-call-duration-threshold: 15s
+        slow-call-duration-threshold: 8s
         slow-call-rate-threshold: 50
         automatic-transition-from-open-to-half-open-enabled: true
         register-health-indicator: true
@@ -38,7 +38,7 @@ resilience4j:
     configs:
       default:
         max-concurrent-calls: 300
-        max-wait-duration: 500ms
+        max-wait-duration: 3000ms
     instances:
       productDetails:
         base-config: default
@@ -46,7 +46,7 @@ resilience4j:
   timelimiter:
     configs:
       default:
-        timeout-duration: 1s
+        timeout-duration: 5s
         cancel-running-future: true
     instances:
       productDetails:
@@ -55,10 +55,10 @@ resilience4j:
 clients:
   base-url: http://localhost:3001
   timeout:
-    connection: 5000
+    connection: 3000
     response: 10000
   max-concurrent-requests:
-    product-detail: 5
+    product-detail: 20
   external-products-service:
     uri:
       product-similar-ids: ${clients.base-url}/product/{productId}/similarids
@@ -68,9 +68,9 @@ app:
   config:
     webclient:
       connection-pool:
-        max-connections: 500
-        pending-acquire-timeout: 20000
-        pending-acquire-max-count: 800
-        max-idle-time: 10000
+        max-connections: 350
+        pending-acquire-timeout: 8000
+        pending-acquire-max-count: 600
+        max-idle-time: 20000
 
 
