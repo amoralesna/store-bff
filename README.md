@@ -54,6 +54,12 @@ En una primera version use el modelo bloqueante.
 
 - Despues desarrollé la gestion de errores añadiendo un @ControllerAdvice para centralizar los errores.
 
-- Finalmente, despues de realizar las pruebas de carga proporcionadas,  cambie la implementacion a un modelo reactivo para mejorar el rendimiento ajustando los paramentros de concurrencia en llamadas y timeouts.
+- Seguidamente de realizar las pruebas de carga proporcionadas, cambie la implementacion a un modelo reactivo para mejorar el rendimiento ajustando los paramentros de concurrencia en llamadas y timeouts.
 
-En cuanto a tolerancia a fallos he creido conveniente usar una estrategia "best effort" que ignora errores (pero los registrsa en el log) en la obtencion de los productos devolviendo siempre los productos diponibles util para aplicaciones de e-commerce.
+- Finalmente he simplificado el diseño y añadido varias mejoras para incrementar el rendimiento y la tolerancia a fallos:
+  - Cache en memoria (por simplicidad) con caffeine para evitar llamadas repetidas al servicio externo en un corto periodo de tiempo.
+  - Un pool de conexiones http para mejorar la gestion de conexiones con el servicio externo.
+  - CircuitBreaker para evitar saturacion del servicio externo y mejorar la resiliencia.
+  - Timelimiter para evitar esperas largas en el servicio externo.
+  - Ratelimiter para limitar el numero de peticiones al servicio externo en un periodo de tiempo.
+
