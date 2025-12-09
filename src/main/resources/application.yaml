@@ -21,12 +21,12 @@ resilience4j:
     configs:
       default:
         sliding-window-type: COUNT_BASED
-        sliding-window-size: 20
+        sliding-window-size: 100
         minimum-number-of-calls: 15
-        failure-rate-threshold: 50
+        failure-rate-threshold: 70
         wait-duration-in-open-state: 15s
         permitted-number-of-calls-in-half-open-state: 10
-        slow-call-duration-threshold: 8s
+        slow-call-duration-threshold: 9s
         slow-call-rate-threshold: 50
         automatic-transition-from-open-to-half-open-enabled: true
         register-health-indicator: true
@@ -34,11 +34,12 @@ resilience4j:
       productDetails:
         base-config: default
 
-  bulkhead:
+  ratelimiter:
     configs:
       default:
-        max-concurrent-calls: 300
-        max-wait-duration: 3000ms
+        limit-for-period: 500
+        limit-refresh-period: 1s
+        timeout-duration: 0ms
     instances:
       productDetails:
         base-config: default
@@ -46,7 +47,7 @@ resilience4j:
   timelimiter:
     configs:
       default:
-        timeout-duration: 5s
+        timeout-duration: 10s
         cancel-running-future: true
     instances:
       productDetails:
@@ -72,5 +73,3 @@ app:
         pending-acquire-timeout: 8000
         pending-acquire-max-count: 600
         max-idle-time: 20000
-
-

@@ -6,10 +6,10 @@ import com.company.store_bff.products.infra.config.AppConfigEnvironment;
 import com.company.store_bff.products.infra.dtos.ExternalProductDetail;
 import com.company.store_bff.products.infra.mappers.ExternalProductDetailMapper;
 import com.github.benmanes.caffeine.cache.Cache;
-import io.github.resilience4j.bulkhead.BulkheadConfig;
-import io.github.resilience4j.bulkhead.BulkheadRegistry;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.ratelimiter.RateLimiterConfig;
+import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,7 @@ class ExternalProductsClientTest {
     private Cache<String, Product> productDetailsCacheMock;
 
     private CircuitBreakerRegistry circuitBreakerRegistry;
-    private BulkheadRegistry bulkheadRegistry;
+    private RateLimiterRegistry rateLimiterRegistry;
     private TimeLimiterRegistry timeLimiterRegistry;
 
     private ExternalProductsClient externalProductsClient;
@@ -59,10 +59,12 @@ class ExternalProductsClientTest {
                 .build();
         circuitBreakerRegistry = CircuitBreakerRegistry.of(circuitBreakerConfig);
 
-        BulkheadConfig bulkheadConfig = BulkheadConfig.custom()
-                .maxConcurrentCalls(1000)
+        RateLimiterConfig rateLimiterConfig = RateLimiterConfig.custom()
+                .limitRefreshPeriod(Duration.ofSeconds(1))
+                .limitForPeriod(500)
+                .timeoutDuration(Duration.ofMillis(0))
                 .build();
-        bulkheadRegistry = BulkheadRegistry.of(bulkheadConfig);
+        rateLimiterRegistry = RateLimiterRegistry.of(rateLimiterConfig);
 
         TimeLimiterConfig timeLimiterConfig = TimeLimiterConfig.custom()
                 .timeoutDuration(Duration.ofMinutes(1))
@@ -75,7 +77,7 @@ class ExternalProductsClientTest {
                 externalProductDetailMapperMock,
                 productDetailsCacheMock,
                 circuitBreakerRegistry,
-                bulkheadRegistry,
+                rateLimiterRegistry,
                 timeLimiterRegistry
         );
     }
