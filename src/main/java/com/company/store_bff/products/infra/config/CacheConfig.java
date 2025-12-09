@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.config;
+package com.company.store_bff.products.infra.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

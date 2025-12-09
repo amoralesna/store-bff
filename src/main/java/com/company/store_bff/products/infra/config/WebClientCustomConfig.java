@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.config;
+package com.company.store_bff.products.infra.config;
 
 import lombok.AllArgsConstructor;
 import org.springframework.boot.web.reactive.function.client.WebClientCustomizer;

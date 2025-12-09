@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.exceptions;
+package com.company.store_bff.products.infra.exceptions;
 
 public class NotFoundException extends ExternalServiceException {
     public NotFoundException(String message) {

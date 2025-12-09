@@ -1,9 +1,10 @@
-package com.company.store_bff.shared.infra.clients;
+package com.company.store_bff.products.infra.clients;
 
 import com.company.store_bff.products.domain.models.Product;
-import com.company.store_bff.shared.infra.config.AppConfigEnvironment;
-import com.company.store_bff.shared.infra.dtos.ExternalProductDetail;
-import com.company.store_bff.shared.infra.mappers.ExternalProductDetailMapper;
+import com.company.store_bff.products.infra.clients.ExternalProductsClient;
+import com.company.store_bff.products.infra.config.AppConfigEnvironment;
+import com.company.store_bff.products.infra.dtos.ExternalProductDetail;
+import com.company.store_bff.products.infra.mappers.ExternalProductDetailMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;

@@ -1,9 +1,9 @@
-package com.company.store_bff.shared.infra.exceptions.handler;
+package com.company.store_bff.products.infra.exceptions.handler;
 
 
-import com.company.store_bff.shared.infra.exceptions.TimeoutException;
-import com.company.store_bff.shared.infra.exceptions.ServiceUnavailableException;
-import com.company.store_bff.shared.infra.exceptions.NotFoundException;
+import com.company.store_bff.products.infra.exceptions.TimeoutException;
+import com.company.store_bff.products.infra.exceptions.ServiceUnavailableException;
+import com.company.store_bff.products.infra.exceptions.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

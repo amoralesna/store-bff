@@ -2,8 +2,8 @@ package com.company.store_bff.products.infra.controllers;
 
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.products.domain.ports.in.GetSimilarProductsUseCase;
-import com.company.store_bff.shared.infra.api.model.ProductDetail;
-import com.company.store_bff.shared.infra.mappers.ProductMapper;
+import com.company.store_bff.products.infra.api.model.ProductDetail;
+import com.company.store_bff.products.infra.mappers.ProductMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -40,11 +40,13 @@ class GetSimilarProductsControllerTest {
         when(productMapper.toDto(p1)).thenReturn(pd1);
         when(productMapper.toDto(p2)).thenReturn(pd2);
 
-        StepVerifier.create(controller.getProductSimilar("1"))
-                .expectNextMatches(responseEntity ->
-                        responseEntity.getStatusCode().is2xxSuccessful() &&
-                                responseEntity.getBody() != null &&
-                                responseEntity.getBody().size() == 2)
+        StepVerifier.create(controller.getProductSimilar("1", null))
+                .expectNextMatches(responseEntity -> {
+                    StepVerifier.create(responseEntity.getBody())
+                            .expectNext(pd1, pd2)
+                            .verifyComplete();
+                    return responseEntity.getStatusCode().is2xxSuccessful();
+                })
                 .verifyComplete();
 
         verify(productMapper, times(1)).toDto(p1);
@@ -55,11 +57,12 @@ class GetSimilarProductsControllerTest {
     void should_return_empty_list_when_usecase_returns_empty_flux() {
         when(getSimilarProductsUseCase.execute("2")).thenReturn(Flux.empty());
 
-        StepVerifier.create(controller.getProductSimilar("2"))
-                .expectNextMatches(responseEntity ->
-                        responseEntity.getStatusCode().is2xxSuccessful() &&
-                                responseEntity.getBody() != null &&
-                                responseEntity.getBody().isEmpty())
+        StepVerifier.create(controller.getProductSimilar("2", null))
+                .expectNextMatches(responseEntity -> {
+                    StepVerifier.create(responseEntity.getBody())
+                            .verifyComplete();
+                    return responseEntity.getStatusCode().is2xxSuccessful();
+                })
                 .verifyComplete();
 
         verifyNoInteractions(productMapper);

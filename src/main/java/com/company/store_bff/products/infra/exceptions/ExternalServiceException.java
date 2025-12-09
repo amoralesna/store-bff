@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.exceptions;
+package com.company.store_bff.products.infra.exceptions;
 
 public class ExternalServiceException extends RuntimeException {
     public ExternalServiceException(String message) {

@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.config;
+package com.company.store_bff.products.infra.config;
 
 import com.company.store_bff.products.domain.models.Product;
 import com.github.benmanes.caffeine.cache.Cache;

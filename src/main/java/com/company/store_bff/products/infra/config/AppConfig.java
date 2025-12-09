@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.config;
+package com.company.store_bff.products.infra.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

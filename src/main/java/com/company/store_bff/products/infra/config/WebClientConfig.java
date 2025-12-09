@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.config;
+package com.company.store_bff.products.infra.config;
 
 import io.netty.channel.ChannelOption;
 import lombok.extern.slf4j.Slf4j;

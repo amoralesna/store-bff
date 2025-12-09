@@ -1,6 +1,9 @@
-package com.company.store_bff.shared.infra.config;
+package com.company.store_bff.products.infra.config;
 
-import com.company.store_bff.shared.infra.exceptions.*;
+import com.company.store_bff.products.infra.exceptions.ConnectionException;
+import com.company.store_bff.products.infra.exceptions.NotFoundException;
+import com.company.store_bff.products.infra.exceptions.ServiceUnavailableException;
+import com.company.store_bff.products.infra.exceptions.TimeoutException;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutException;
 import org.springframework.http.HttpStatus;

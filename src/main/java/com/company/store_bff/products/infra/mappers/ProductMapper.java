@@ -1,7 +1,7 @@
-package com.company.store_bff.shared.infra.mappers;
+package com.company.store_bff.products.infra.mappers;
 
 import com.company.store_bff.products.domain.models.Product;
-import com.company.store_bff.shared.infra.api.model.ProductDetail;
+import com.company.store_bff.products.infra.api.model.ProductDetail;
 import org.mapstruct.Mapper;
 
 import static org.mapstruct.MappingConstants.ComponentModel.SPRING;

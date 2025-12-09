@@ -1,10 +1,10 @@
-package com.company.store_bff.shared.infra.clients;
+package com.company.store_bff.products.infra.clients;
 
 import com.company.store_bff.products.domain.models.Product;
 import com.company.store_bff.products.domain.ports.out.ExternalProductServicePort;
-import com.company.store_bff.shared.infra.config.AppConfigEnvironment;
-import com.company.store_bff.shared.infra.dtos.ExternalProductDetail;
-import com.company.store_bff.shared.infra.mappers.ExternalProductDetailMapper;
+import com.company.store_bff.products.infra.config.AppConfigEnvironment;
+import com.company.store_bff.products.infra.dtos.ExternalProductDetail;
+import com.company.store_bff.products.infra.mappers.ExternalProductDetailMapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadRegistry;
@@ -12,12 +12,9 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
-import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.retry.RetryRegistry;
 import io.github.resilience4j.reactor.bulkhead.operator.BulkheadOperator;
 import io.github.resilience4j.reactor.circuitbreaker.operator.CircuitBreakerOperator;
 import io.github.resilience4j.reactor.timelimiter.TimeLimiterOperator;
-import io.github.resilience4j.reactor.retry.RetryOperator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;

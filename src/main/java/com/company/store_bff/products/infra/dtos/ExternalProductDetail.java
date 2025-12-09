@@ -1,4 +1,4 @@
-package com.company.store_bff.shared.infra.dtos;
+package com.company.store_bff.products.infra.dtos;
 
 import lombok.Builder;
 import lombok.Data;
