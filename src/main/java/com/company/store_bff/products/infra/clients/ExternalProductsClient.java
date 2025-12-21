@@ -106,9 +106,9 @@ public class ExternalProductsClient implements ExternalProductServicePort {
                 .uri(appConfigEnvironment.getExternalProductsServiceUriProductDetail(), productId)
                 .retrieve()
                 .bodyToMono(ExternalProductDetail.class)
-                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
-                .transformDeferred(RateLimiterOperator.of(rateLimiter))
                 .transformDeferred(TimeLimiterOperator.of(timeLimiter))
+                .transformDeferred(RateLimiterOperator.of(rateLimiter))
+                .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(externalProductDetailMapper::toDomain)
                 .onErrorResume(error -> {
                     log.warn("Error fetching product {}: {}", productId, error.getMessage());

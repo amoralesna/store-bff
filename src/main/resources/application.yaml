@@ -22,11 +22,11 @@ resilience4j:
       default:
         sliding-window-type: COUNT_BASED
         sliding-window-size: 100
-        minimum-number-of-calls: 15
+        minimum-number-of-calls: 25
         failure-rate-threshold: 70
         wait-duration-in-open-state: 15s
-        permitted-number-of-calls-in-half-open-state: 10
-        slow-call-duration-threshold: 9s
+        permitted-number-of-calls-in-half-open-state: 50
+        slow-call-duration-threshold: 6s
         slow-call-rate-threshold: 50
         automatic-transition-from-open-to-half-open-enabled: true
         register-health-indicator: true
@@ -37,9 +37,9 @@ resilience4j:
   ratelimiter:
     configs:
       default:
-        limit-for-period: 500
+        limit-for-period: 800
         limit-refresh-period: 1s
-        timeout-duration: 0ms
+        timeout-duration: 250ms
     instances:
       productDetails:
         base-config: default
@@ -47,7 +47,7 @@ resilience4j:
   timelimiter:
     configs:
       default:
-        timeout-duration: 10s
+        timeout-duration: 5s
         cancel-running-future: true
     instances:
       productDetails:
@@ -59,7 +59,7 @@ clients:
     connection: 3000
     response: 10000
   max-concurrent-requests:
-    product-detail: 20
+    product-detail: 5
   external-products-service:
     uri:
       product-similar-ids: ${clients.base-url}/product/{productId}/similarids
@@ -69,7 +69,7 @@ app:
   config:
     webclient:
       connection-pool:
-        max-connections: 350
+        max-connections: 650
         pending-acquire-timeout: 8000
-        pending-acquire-max-count: 600
+        pending-acquire-max-count: 800
         max-idle-time: 20000
