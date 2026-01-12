@@ -26,7 +26,7 @@ resilience4j:
         failure-rate-threshold: 70
         wait-duration-in-open-state: 15s
         permitted-number-of-calls-in-half-open-state: 50
-        slow-call-duration-threshold: 6s
+        slow-call-duration-threshold: 3s
         slow-call-rate-threshold: 50
         automatic-transition-from-open-to-half-open-enabled: true
         register-health-indicator: true
@@ -44,20 +44,11 @@ resilience4j:
       productDetails:
         base-config: default
 
-  timelimiter:
-    configs:
-      default:
-        timeout-duration: 5s
-        cancel-running-future: true
-    instances:
-      productDetails:
-        base-config: default
-
 clients:
   base-url: http://localhost:3001
   timeout:
     connection: 3000
-    response: 10000
+    response: 6000
   max-concurrent-requests:
     product-detail: 5
   external-products-service:

@@ -22,6 +22,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
 
 import static java.util.Objects.isNull;
@@ -37,15 +38,16 @@ public class ExternalProductsClient implements ExternalProductServicePort {
     private final Cache<String, Product> productDetailsCache;
     private final CircuitBreaker circuitBreaker;
     private final RateLimiter rateLimiter;
-    private final TimeLimiter timeLimiter;
+//    private final TimeLimiter timeLimiter;
 
     public ExternalProductsClient(WebClient webClient,
                                   AppConfigEnvironment appConfigEnvironment,
                                   ExternalProductDetailMapper externalProductDetailMapper,
                                   Cache<String, Product> productDetailsCache,
                                   CircuitBreakerRegistry circuitBreakerRegistry,
-                                  RateLimiterRegistry rateLimiterRegistry,
-                                  TimeLimiterRegistry timeLimiterRegistry) {
+                                  RateLimiterRegistry rateLimiterRegistry
+//                                  TimeLimiterRegistry timeLimiterRegistry
+    ) {
         this.webClient = webClient;
         this.appConfigEnvironment = appConfigEnvironment;
         this.externalProductDetailMapper = externalProductDetailMapper;
@@ -61,11 +63,11 @@ public class ExternalProductsClient implements ExternalProductServicePort {
                 .onSuccess(event -> log.debug("RateLimiter 'productDetails' call succeeded"))
                 .onFailure(event -> log.warn("RateLimiter 'productDetails' call RATE LIMITED"));
 
-        this.timeLimiter = timeLimiterRegistry.timeLimiter("productDetails");
-        this.timeLimiter.getEventPublisher()
-                .onSuccess(event -> log.debug("TimeLimiter 'productDetails' call succeeded"))
-                .onTimeout(event -> log.warn("TimeLimiter 'productDetails' call TIMEOUT"))
-                .onError(event -> log.error("TimeLimiter 'productDetails' call ERROR: {}", event.getThrowable().getMessage()));
+//        this.timeLimiter = timeLimiterRegistry.timeLimiter("productDetails");
+//        this.timeLimiter.getEventPublisher()
+//                .onSuccess(event -> log.debug("TimeLimiter 'productDetails' call succeeded"))
+//                .onTimeout(event -> log.warn("TimeLimiter 'productDetails' call TIMEOUT"))
+//                .onError(event -> log.error("TimeLimiter 'productDetails' call ERROR: {}", event.getThrowable().getMessage()));
 
     }
 
@@ -106,7 +108,6 @@ public class ExternalProductsClient implements ExternalProductServicePort {
                 .uri(appConfigEnvironment.getExternalProductsServiceUriProductDetail(), productId)
                 .retrieve()
                 .bodyToMono(ExternalProductDetail.class)
-                .transformDeferred(TimeLimiterOperator.of(timeLimiter))
                 .transformDeferred(RateLimiterOperator.of(rateLimiter))
                 .transformDeferred(CircuitBreakerOperator.of(circuitBreaker))
                 .map(externalProductDetailMapper::toDomain)

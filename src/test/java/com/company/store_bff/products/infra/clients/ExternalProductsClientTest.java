@@ -47,7 +47,6 @@ class ExternalProductsClientTest {
 
     private CircuitBreakerRegistry circuitBreakerRegistry;
     private RateLimiterRegistry rateLimiterRegistry;
-    private TimeLimiterRegistry timeLimiterRegistry;
 
     private ExternalProductsClient externalProductsClient;
 
@@ -66,19 +65,13 @@ class ExternalProductsClientTest {
                 .build();
         rateLimiterRegistry = RateLimiterRegistry.of(rateLimiterConfig);
 
-        TimeLimiterConfig timeLimiterConfig = TimeLimiterConfig.custom()
-                .timeoutDuration(Duration.ofMinutes(1))
-                .build();
-        timeLimiterRegistry = TimeLimiterRegistry.of(timeLimiterConfig);
-
         externalProductsClient = new ExternalProductsClient(
                 webClientMock,
                 appConfigEnvironmentMock,
                 externalProductDetailMapperMock,
                 productDetailsCacheMock,
                 circuitBreakerRegistry,
-                rateLimiterRegistry,
-                timeLimiterRegistry
+                rateLimiterRegistry
         );
     }
 

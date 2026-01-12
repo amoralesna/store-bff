@@ -37,9 +37,8 @@ store-bff es un backend-for-frontend (Spring Boot + WebFlux) que realiza llamada
 
 ## Notas
 
-Para el desarrollo de la aplicacion he creado una arquitectura escalable y limipia.
-Me he decantado por una arquitectura hexagonal con vertical slicing, lo cual minimiza el acoplamiento permitiendo la separacion por features y dentro de la misma por dominio, aplicacion e infraestructura.
-Tambien he creido conveniente separar aquella funcionalidad que seria compartida por otras features en un modulo shared como componentes para servicios externos o configuracion.
+Para el desarrollo de la aplicacion he creado una arquitectura escalable y limpia.
+Me he decantado por una arquitectura hexagonal con vertical slicing, lo cual facilita el testing y minimiza el acoplamiento permitiendo la separacion por features y dentro de la misma por dominio, aplicacion e infraestructura.
 
 Para facilitar el escalado y mantenibilidad, he extraido al archivo configuracion algunas propiedades, evitando que esten harcoded en el codigo.
 Esto facilita el ajuste de las mismas en un entorno con gestion de configuracion centralizada, comun en arquitecturas de microservicios.
@@ -54,12 +53,12 @@ En una primera version use el modelo bloqueante.
 
 - Despues desarrollé la gestion de errores añadiendo un @ControllerAdvice para centralizar los errores.
 
-- Seguidamente de realizar las pruebas de carga proporcionadas, cambie la implementacion a un modelo reactivo para mejorar el rendimiento ajustando los paramentros de concurrencia en llamadas y timeouts.
+- Seguidamente de realizar las pruebas de carga proporcionadas, cambie la implementacion a un modelo reactivo para mejorar el rendimiento ajustando los parametros de concurrencia en llamadas y timeouts.
 
 - Finalmente he simplificado el diseño y añadido varias mejoras para incrementar el rendimiento y la tolerancia a fallos:
   - Cache en memoria (por simplicidad) con caffeine para evitar llamadas repetidas al servicio externo en un corto periodo de tiempo.
   - Un pool de conexiones http para mejorar la gestion de conexiones con el servicio externo.
   - CircuitBreaker para evitar saturacion del servicio externo y mejorar la resiliencia.
-  - Timelimiter para evitar esperas largas en el servicio externo.
+  - responseTimeout en webclient para evitar esperas largas en el servicio externo.
   - Ratelimiter para limitar el numero de peticiones al servicio externo en un periodo de tiempo.
 
